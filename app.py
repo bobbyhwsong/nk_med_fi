@@ -3,6 +3,8 @@ from openai import OpenAI
 # dotenv 제거
 # from dotenv import load_dotenv
 import os
+import time
+from datetime import datetime, timedelta
 
 # 환경 변수 로딩 방식 변경
 # load_dotenv()
@@ -24,6 +26,80 @@ st.set_page_config(
     layout="wide"
 )
 
+# 커스텀 CSS로 배경색 변경
+st.markdown("""
+    <style>
+        /* 전체 앱 스타일 */
+        .stApp {
+            background-color: #000000;
+            color: #ffffff;
+        }
+        
+        /* 상단 영역 스타일 */
+        .main > div:first-child {
+            background-color: #000000;
+        }
+        .stApp > header {
+            background-color: #000000;
+        }
+        
+        /* 사이드바 스타일 */
+        [data-testid="stSidebar"] {
+            background-color: #000000;
+            border-right: 1px solid #333333;
+        }
+        [data-testid="stSidebar"] .css-1d391kg {
+            background-color: #000000;
+        }
+        
+        /* 버튼 스타일 */
+        .stButton>button {
+            background-color: #1E1E1E;
+            color: #ffffff;
+            border: 1px solid #ffffff;
+        }
+        .stButton>button:hover {
+            background-color: #2E2E2E;
+        }
+        
+        /* 입력 필드 스타일 */
+        .stTextInput>div>div>input {
+            background-color: #1E1E1E;
+            color: #ffffff;
+        }
+        .stTextArea>div>div>textarea {
+            background-color: #1E1E1E;
+            color: #ffffff;
+        }
+        
+        /* 채팅 메시지 스타일 */
+        .stChatMessage {
+            background-color: #1E1E1E;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+        .stChatMessage [data-testid="stChatMessageContent"] {
+            color: #FFFFFF;
+        }
+        
+        /* 타이머 스타일 */
+        .timer-container {
+            text-align: center;
+            padding: 10px;
+            background-color: #1E1E1E;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 # 상태 초기화
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -37,6 +113,12 @@ if "chat_completed" not in st.session_state:
     st.session_state.chat_completed = False
 if "current_page" not in st.session_state:
     st.session_state.current_page = "intro"
+if "timer_start" not in st.session_state:
+    st.session_state.timer_start = None
+if "time_left" not in st.session_state:
+    st.session_state.time_left = 300  # 5분 = 300초
+if "last_update" not in st.session_state:
+    st.session_state.last_update = None
 
 # 연습 문제 정의
 TASKS = {
@@ -259,6 +341,38 @@ elif st.session_state.current_page == "chat":
     # 문제 안내
     st.info(TASKS[st.session_state.selected_task]["task_info"])
     
+    # 타이머 시작
+    if st.session_state.timer_start is None:
+        st.session_state.timer_start = datetime.now()
+        st.session_state.time_left = 300  # 5분으로 초기화
+        st.session_state.last_update = None
+    
+    # 타이머 표시
+    if st.session_state.timer_start:
+        elapsed = (datetime.now() - st.session_state.timer_start).total_seconds()
+        time_left = max(0, 300 - elapsed)  # 5분에서 경과 시간을 뺌
+        
+        minutes = int(time_left // 60)
+        seconds = int(time_left % 60)
+        
+        # 타이머 컨테이너
+        st.markdown(f"""
+            <div class="timer-container">
+                <h2 style='color: {"#FF0000" if time_left < 60 else "#FFFFFF"};'>
+                    ⏰ 남은 시간: {minutes:02d}:{seconds:02d}
+                </h2>
+                <p style='color: #FFFFFF; font-size: 0.8em; margin-top: 5px;'>
+                    답을 보낼 때마다 타이머가 업데이트됩니다.
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # 시간이 다 되면 자동으로 다음 단계로
+        if time_left <= 0:
+            st.session_state.chat_completed = True
+            st.session_state.current_page = "answer"
+            st.rerun()
+    
     # 정보 카드와 답 고르기 버튼을 같은 행에 배치
     col1, col2 = st.columns([3, 1])
     
@@ -279,23 +393,38 @@ elif st.session_state.current_page == "chat":
     for message in st.session_state.messages:
         if message["role"] != "system":
             with st.chat_message(message["role"]):
-                st.write(message["content"])
+                st.markdown(f"""
+                    <div style="color: #FFFFFF; background-color: #1E1E1E; padding: 10px; border-radius: 5px;">
+                        {message["content"]}
+                    </div>
+                """, unsafe_allow_html=True)
     
     # 질문하기
     if prompt := st.chat_input("질문을 입력하세요"):
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
-            st.write(prompt)
+            st.markdown(f"""
+                <div style="color: #FFFFFF; background-color: #1E1E1E; padding: 10px; border-radius: 5px;">
+                    {prompt}
+                </div>
+            """, unsafe_allow_html=True)
             
         # 답변하기
         with st.chat_message("assistant"):
             response = get_gpt_response(st.session_state.messages)
-            st.write(response)
+            st.markdown(f"""
+                <div style="color: #FFFFFF; background-color: #1E1E1E; padding: 10px; border-radius: 5px;">
+                    {response}
+                </div>
+            """, unsafe_allow_html=True)
             st.session_state.messages.append({"role": "assistant", "content": response})
             
             # 채팅 후 답 선택 안내
             if len(st.session_state.messages) > 2:  # 초기 안내 메시지 이후에만 표시
                 st.info("💡 이제 충분한 정보를 얻으셨다면, 위의 '답 고르러 가기' 버튼을 눌러 답을 선택해보세요.")
+        
+        # 타이머 업데이트를 위해 페이지 새로고침
+        st.rerun()
 
 # 답 선택 화면
 elif st.session_state.current_page == "answer":
@@ -311,14 +440,62 @@ elif st.session_state.current_page == "answer":
         user_answer = st.radio(
             "답을 고르세요:",
             options=['O', 'X'],
-            horizontal=True
+            horizontal=True,
+            label_visibility="visible"
         )
     else:
         if st.session_state.selected_task == "여러 정보로 여러 답 찾기":
-            st.markdown("**⚠️ 여러 행동을 함께 고를 수 있습니다**")
-            user_answer = st.multiselect("당신의 선택:", TASKS[st.session_state.selected_task]["actions"])
+            st.markdown("""
+                <div style="color: #FFFFFF; background-color: #1E1E1E; padding: 10px; border-radius: 5px; margin-bottom: 20px;">
+                    <strong>⚠️ 여러 행동을 함께 고를 수 있습니다</strong>
+                </div>
+            """, unsafe_allow_html=True)
+            user_answer = st.multiselect(
+                "당신의 선택:",
+                TASKS[st.session_state.selected_task]["actions"],
+                label_visibility="visible"
+            )
         else:
-            user_answer = [st.radio("당신의 선택:", TASKS[st.session_state.selected_task]["actions"])]
+            user_answer = [st.radio(
+                "당신의 선택:",
+                TASKS[st.session_state.selected_task]["actions"],
+                label_visibility="visible"
+            )]
+    
+    # 커스텀 CSS로 라디오 버튼과 멀티셀렉트 스타일 변경
+    st.markdown("""
+        <style>
+            /* 라디오 버튼 스타일 */
+            .stRadio > div {
+                color: #FFFFFF;
+            }
+            .stRadio > div > div {
+                background-color: #1E1E1E;
+                padding: 10px;
+                border-radius: 5px;
+            }
+            /* 멀티셀렉트 스타일 */
+            .stMultiSelect > div {
+                color: #FFFFFF;
+            }
+            .stMultiSelect > div > div {
+                background-color: #1E1E1E;
+                padding: 10px;
+                border-radius: 5px;
+            }
+            /* 선택된 항목 스타일 */
+            .stRadio > div > div[data-baseweb="radio"] {
+                color: #FFFFFF;
+            }
+            .stMultiSelect > div > div[data-baseweb="select"] {
+                color: #FFFFFF;
+            }
+            /* 라벨 스타일 */
+            .stRadio > label, .stMultiSelect > label {
+                color: #FFFFFF;
+            }
+        </style>
+    """, unsafe_allow_html=True)
     
     if st.button("답 제출하기", use_container_width=True):
         st.session_state.user_answer = user_answer
@@ -328,27 +505,69 @@ elif st.session_state.current_page == "answer":
 # 답 확인 화면
 elif st.session_state.current_page == "feedback":
     st.subheader("답 확인하기")
-    st.write("당신의 답:", st.session_state.user_answer)
+    st.markdown(f"""
+        <div style="color: #FFFFFF; background-color: #1E1E1E; padding: 10px; border-radius: 5px; margin-bottom: 20px;">
+            <h3>당신의 답:</h3>
+            {st.session_state.user_answer}
+        </div>
+    """, unsafe_allow_html=True)
     
     if st.session_state.selected_task == "하나의 정보로 하나의 답 찾기":
         correct_answer = TASKS[st.session_state.selected_task]["correct_answer"]
         if st.session_state.user_answer == correct_answer:
-            st.success("✅ 맞았습니다!")
-            st.markdown(TASKS[st.session_state.selected_task]["explanation"]["correct"])
+            st.markdown(f"""
+                <div style="color: #FFFFFF; background-color: #1E1E1E; padding: 10px; border-radius: 5px; margin-bottom: 20px;">
+                    <h3 style="color: #00FF00;">✅ 맞았습니다!</h3>
+                    {TASKS[st.session_state.selected_task]["explanation"]["correct"]}
+                </div>
+            """, unsafe_allow_html=True)
         else:
-            st.error("❌ 틀렸습니다.")
-            st.markdown(TASKS[st.session_state.selected_task]["explanation"]["incorrect"])
+            st.markdown(f"""
+                <div style="color: #FFFFFF; background-color: #1E1E1E; padding: 10px; border-radius: 5px; margin-bottom: 20px;">
+                    <h3 style="color: #FF0000;">❌ 틀렸습니다.</h3>
+                    {TASKS[st.session_state.selected_task]["explanation"]["incorrect"]}
+                </div>
+            """, unsafe_allow_html=True)
     else:
-        st.write("정답:", TASKS[st.session_state.selected_task]["correct_actions"])
+        # 정답 표시
+        if st.session_state.selected_task == "여러 정보로 하나의 답 찾기":
+            correct_answer = TASKS[st.session_state.selected_task]["correct_action"]
+            st.markdown(f"""
+                <div style="color: #FFFFFF; background-color: #1E1E1E; padding: 10px; border-radius: 5px; margin-bottom: 20px;">
+                    <h3>정답:</h3>
+                    {correct_answer}
+                </div>
+            """, unsafe_allow_html=True)
+        else:
+            correct_actions = TASKS[st.session_state.selected_task]["correct_actions"]
+            st.markdown(f"""
+                <div style="color: #FFFFFF; background-color: #1E1E1E; padding: 10px; border-radius: 5px; margin-bottom: 20px;">
+                    <h3>정답:</h3>
+                    {', '.join(correct_actions)}
+                </div>
+            """, unsafe_allow_html=True)
         
+        # 피드백 표시
         for action in st.session_state.user_answer:
             feedback = TASKS[st.session_state.selected_task]["feedback"][action]
             if "✅" in feedback:
-                st.success(feedback)
+                st.markdown(f"""
+                    <div style="color: #FFFFFF; background-color: #1E1E1E; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                        <span style="color: #00FF00;">{feedback}</span>
+                    </div>
+                """, unsafe_allow_html=True)
             elif "❌" in feedback:
-                st.error(feedback)
+                st.markdown(f"""
+                    <div style="color: #FFFFFF; background-color: #1E1E1E; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                        <span style="color: #FF0000;">{feedback}</span>
+                    </div>
+                """, unsafe_allow_html=True)
             else:
-                st.warning(feedback)
+                st.markdown(f"""
+                    <div style="color: #FFFFFF; background-color: #1E1E1E; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                        <span style="color: #FFA500;">{feedback}</span>
+                    </div>
+                """, unsafe_allow_html=True)
     
     # 새로 시작하기
     if st.button("새로운 연습 시작하기", use_container_width=True):
@@ -357,4 +576,7 @@ elif st.session_state.current_page == "feedback":
         st.session_state.messages = []
         st.session_state.task_completed = False
         st.session_state.user_answer = None
+        st.session_state.timer_start = None  # 타이머 초기화
+        st.session_state.time_left = 300  # 5분으로 초기화
+        st.session_state.last_update = None
         st.rerun() 
