@@ -74,13 +74,17 @@ st.markdown("""
         
         /* 채팅 메시지 스타일 */
         .stChatMessage {
-            background-color: #1E1E1E;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 5px 0;
+            padding: 0;
+            margin: 8px 0;
         }
         .stChatMessage [data-testid="stChatMessageContent"] {
             color: #FFFFFF;
+            padding: 0;
+            margin: 0;
+        }
+        .stChatMessage [data-testid="stChatMessageContent"] > div {
+            padding: 0;
+            margin: 0;
         }
         
         /* 타이머 스타일 */
@@ -124,7 +128,7 @@ if "last_update" not in st.session_state:
 TASKS = {
     "하나의 정보로 하나의 답 찾기": {
         "description": "하나의 정보만 보고 정확한 답을 찾는 연습입니다.",
-        "system_prompt": "당신은 하나의 정보만 보고 정확한 답을 찾는 것을 도와주는 사람입니다. 사용자가 준 정보를 보고 정확한 답을 찾을 수 있도록 도와주세요. 답은 쉽고 명확하게 설명해주세요.",
+        "system_prompt": "여름철 바깥나들이 중 기운이 빠진 사람을 본 상황에서 사용자가 맞는 답을 고르게 도와주세요. 사용자에게 주어진 정보 하나는 '탈수 기운이 보이면, 바로 그늘진 곳으로 옮기고 물을 마시게 해야 합니다.'입니다. 사용자가 묻는 말에 답을 해주며, 옳은 대처법을 찾게 도와주세요. 답을 알려주지 말고, 답을 찾아가는 과정만을 함께 해주세요. 상대가 북한이탈주민이라는 점을 고려해서, 외래어 없이 쉬운 단어로만 설명하세요.",
         "task_info": "여름철 바깥나들이 중 기운이 빠진 사람을 보았습니다. 급한 손질 안내글을 보고 어떻게 해야 할지 답해보세요.",
         "cards": {
             "급한 손질 안내글": {
@@ -132,7 +136,7 @@ TASKS = {
                 "source": "대한급손학회"
             }
         },
-        "question": "탈수 환자는 그늘로 옮기고 물을 마시게 해야 합니다.",
+        "question": "아래 문장이 맞는지 아닌지 O/X로 답해주세요:\n탈수 환자는 그늘로 옮기고 물을 마시게 해야 합니다.",
         "correct_answer": "O",
         "explanation": {
             "correct": "잘하셨습니다! 탈수 환자는 체온을 낮추고 물을 천천히 마시는 것이 중요합니다.",
@@ -141,7 +145,7 @@ TASKS = {
     },
     "여러 정보로 하나의 답 찾기": {
         "description": "여러 정보를 모아서 하나의 정확한 답을 찾는 연습입니다.",
-        "system_prompt": "당신은 여러 정보를 모아서 정확한 답을 찾는 것을 도와주는 사람입니다. 사용자가 준 여러 정보를 모아서 정확한 답을 찾을 수 있도록 도와주세요. 정보를 어떻게 모았는지 설명해주세요.",
+        "system_prompt": "길에서 열로 지친 듯한 사람을 본 상황에서 사용자가 맞는 답을 고르게 도와주세요. 사용자에게 옳은 정보와 틀린 정보가 모두 주어졌어. 사용자에게 주어진 정보는 '(1)환자를 시원한 곳으로 옮기고, 몸을 적셔서 체온을 내려야 합니다.(2)따뜻한 차를 마시게 하면 좋습니다.(3)의식이 없으면 억지로 물을 먹이면 안 됩니다.'입니다. 사용자가 묻는 말에 답을 해주며, 옳은 대처법을 찾게 도와주세요. 답을 알려주지 말고, 답을 찾아가는 과정만을 함께 해주세요. 상대가 북한이탈주민이라는 점을 고려해서, 외래어 없이 쉬운 단어로만 설명하세요.",
         "task_info": "길에서 열로 지친 듯한 사람을 보았습니다. 여러 정보를 보고 어떻게 해야 할지 답해보세요.",
         "cards": {
             "급한 손질 공식책": {
@@ -180,8 +184,8 @@ TASKS = {
     },
     "여러 정보로 여러 답 찾기": {
         "description": "여러 정보를 보고 가능한 모든 답을 찾는 연습입니다.",
-        "system_prompt": "당신은 여러 정보를 보고 가능한 모든 답을 찾는 것을 도와주는 사람입니다. 사용자가 준 정보를 보고 가능한 모든 답을 찾을 수 있도록 도와주세요. 각 답이 왜 맞는지 설명해주세요.",
-        "task_info": "큰 가게 안에서 사람이 쓰러져 정신이 없습니다. 주변에 자동 심장 충격기(AED)가 있습니다. 상황을 아는 사람은 없습니다. 여러 정보를 보고 어떻게 해야 할지 답해보세요.",
+        "system_prompt": "큰 가게 안에서 사람이 쓰러져 정신이 없는 상황에서 사용자가 맞는 답을 고르게 도와주세요. 사용자에게 옳은 정보와 틀린 정보가 모두 주어졌어. 사용자에게 주어진 정보는 '(1)바로 119에 전화하고 자동 심장 충격기를 가져와야 합니다.(2)자동 심장 충격기는 안내 소리를 따라하면 누구나 쓸 수 있습니다.(3손과 발을 따뜻하게 하면 회복됩니다.(4)귀를 세게 때리면 정신을 차립니다.(5)심장이 멈춘 것 같으면 의식과 숨 쉬는지 먼저 확인하고 가슴 눌러 숨쉬기를 해야 합니다.'입니다. 사용자가 묻는 말에 답을 해주며, 옳은 대처법을 찾게 도와주세요. 답을 알려주지 말고, 답을 찾아가는 과정만을 함께 해주세요. 상대가 북한이탈주민이라는 점을 고려해서, 외래어 없이 쉬운 단어로만 설명하세요.",
+        "task_info": "큰 가게 안에서 사람이 쓰러져 정신이 없습니다. 여러 정보를 보고 어떻게 해야 할지 답해보세요.",
         "cards": {
             "급손 안내 누리집": {
                 "summary": "바로 119에 전화하고 자동 심장 충격기를 가져와야 합니다.",
@@ -252,7 +256,7 @@ with st.sidebar:
             st.session_state.selected_task = task_name
             st.session_state.messages = [
                 {"role": "system", "content": TASKS[task_name]["system_prompt"]},
-                {"role": "assistant", "content": TASKS[task_name]["task_info"]}
+                {"role": "assistant", "content": "같이 옳은 답을 찾아보아요."}
             ]
             st.session_state.current_page = "chat"
             st.session_state.chat_completed = False
@@ -437,6 +441,12 @@ elif st.session_state.current_page == "answer":
     st.subheader("답 제출하기")
     
     if st.session_state.selected_task == "하나의 정보로 하나의 답 찾기":
+        st.markdown(f"""
+            <div style="color: #FFFFFF; background-color: #1E1E1E; padding: 10px; border-radius: 5px; margin-bottom: 20px;">
+                <h3>문제:</h3>
+                {TASKS[st.session_state.selected_task]["question"]}
+            </div>
+        """, unsafe_allow_html=True)
         user_answer = st.radio(
             "답을 고르세요:",
             options=['O', 'X'],
@@ -450,11 +460,10 @@ elif st.session_state.current_page == "answer":
                     <strong>⚠️ 여러 행동을 함께 고를 수 있습니다</strong>
                 </div>
             """, unsafe_allow_html=True)
-            user_answer = st.multiselect(
-                "당신의 선택:",
-                TASKS[st.session_state.selected_task]["actions"],
-                label_visibility="visible"
-            )
+            user_answer = []
+            for action in TASKS[st.session_state.selected_task]["actions"]:
+                if st.checkbox(action, key=action):
+                    user_answer.append(action)
         else:
             user_answer = [st.radio(
                 "당신의 선택:",
@@ -465,33 +474,24 @@ elif st.session_state.current_page == "answer":
     # 커스텀 CSS로 라디오 버튼과 멀티셀렉트 스타일 변경
     st.markdown("""
         <style>
-            /* 라디오 버튼 스타일 */
-            .stRadio > div {
-                color: #FFFFFF;
-            }
-            .stRadio > div > div {
-                background-color: #1E1E1E;
-                padding: 10px;
-                border-radius: 5px;
-            }
-            /* 멀티셀렉트 스타일 */
-            .stMultiSelect > div {
-                color: #FFFFFF;
-            }
-            .stMultiSelect > div > div {
-                background-color: #1E1E1E;
-                padding: 10px;
-                border-radius: 5px;
-            }
-            /* 선택된 항목 스타일 */
-            .stRadio > div > div[data-baseweb="radio"] {
-                color: #FFFFFF;
-            }
-            .stMultiSelect > div > div[data-baseweb="select"] {
-                color: #FFFFFF;
-            }
             /* 라벨 스타일 */
             .stRadio > label, .stMultiSelect > label {
+                color: #FFFFFF;
+            }
+            /* 선택된 항목 스타일 */
+            .stRadio > div > div[data-baseweb="radio"] > div[aria-checked="true"] {
+                background-color: #FFFFFF;
+                color: #000000;
+            }
+            .stMultiSelect > div > div[data-baseweb="select"] > div[aria-selected="true"] {
+                background-color: #FFFFFF;
+                color: #000000;
+            }
+            /* 선택되지 않은 항목 스타일 */
+            .stRadio > div > div[data-baseweb="radio"] > div[aria-checked="false"] {
+                color: #FFFFFF;
+            }
+            .stMultiSelect > div > div[data-baseweb="select"] > div[aria-selected="false"] {
                 color: #FFFFFF;
             }
         </style>
