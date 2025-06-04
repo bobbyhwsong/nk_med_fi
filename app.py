@@ -36,7 +36,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 메인 컨텐츠
-st.title("정보 찾기 연습")
+st.title("북한이탈주민을 위한, 위험한 상황에 대처하는 방법 연습하기")
 st.write("원하시는 버전을 선택해주세요:")
 
 # 두 개의 컬럼 생성
