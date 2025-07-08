@@ -375,7 +375,7 @@ elif st.session_state.current_page == "chat":
     # 정보 카드 보여주기
     for card_name, card_info in TASKS[st.session_state.selected_task]["cards"].items():
         with st.expander(f"📄 {card_name}"):
-            st.write(f"**요약:** {card_info['summary']}")
+            st.write(f"**요점:** {card_info['summary']}")
             st.caption(f"출처: {card_info['source']}")
     
     # 대화 내용 보여주기
