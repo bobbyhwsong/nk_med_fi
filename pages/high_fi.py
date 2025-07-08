@@ -362,9 +362,9 @@ elif st.session_state.current_page == "chat":
         # 타이머 컨테이너
         st.markdown(f"""<div class="timer-container"><p style='color: #FFFFFF; font-size: 0.8em; margin-top: 5px;'>
 
-아래의 안내글 {len(TASKS[st.session_state.selected_task]["cards"])}개를 보고나서, 도우미랑 대화를 하고나서, 답을 고르세요. 맞는 안내글도 있고, 틀린 안내글도 있습니다.
+아래의 안내글 {len(TASKS[st.session_state.selected_task]["cards"])}개를 보고나서, 이야기 인간이랑 대화를 하고나서, 답을 고르세요. 맞는 안내글도 있고, 틀린 안내글도 있습니다.
 
-(제한시간 5분, 말을 하나 주고받을 때마다, 아래 시계에 남은 대화 시간이 보여지게 됩니다.)</p><h3 style='color: {"#FF0000" if time_left < 60 else "#FFFFFF"};'>⏰ 남은 대화 시간: {minutes:02d}:{seconds:02d}</h3></div>""", unsafe_allow_html=True)
+(제한시간 5분, 이야기 인간과 말을 하나 주고받을 때마다, 아래 시계에 남은 시간이 보여지게 됩니다.)</p><h3 style='color: {"#FF0000" if time_left < 60 else "#FFFFFF"};'>⏰ 남은 시간: {minutes:02d}:{seconds:02d}</h3></div>""", unsafe_allow_html=True)
         
         # 시간이 다 되면 자동으로 다음 단계로
         if time_left <= 0:
